@@ -1,0 +1,5 @@
+.DS_Store
+from_colab/*
+*.pyc
+.vscode/*
+.ipynb_checkpoints/*
