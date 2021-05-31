@@ -7,6 +7,7 @@ import numpy as np
 import csv
 import random
 import argparse
+import os
 
 # GPU = 0
 
@@ -19,8 +20,8 @@ args = parser.parse_args()
 device = torch.device("cuda:{}".format(args.gpu)) if args.gpu >= 0 else torch.device("cpu")
 
 # constants
-# NUM_BATCHES = 5000
-NUM_BATCHES = 4
+NUM_BATCHES = 5000
+# NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
 GENERATE_EVERY  = 1
@@ -34,9 +35,12 @@ SEED = 32
 np.random.seed(SEED)
 random.seed(SEED)
 torch.manual_seed(SEED)
+
 if device != "cpu":
     torch.cuda.manual_seed(SEED)
 
+if not os.path.exists(f"output_{attn_type}"):
+    os.makedirs(f"output_{attn_type}")
 
 def makesin_noise():
     period = np.random.randint(50, 100)# 周期
@@ -206,14 +210,14 @@ for dim in dim_lst:
                         # src, _, src_mask, _ = next(cycle())
                         # src, src_mask = src[0:1].to(device), src_mask[0:1].to(device)
 
-                        src = test_src[i,:]
-                        tgt = test_tgt[i,1:]
+                        src = test_src[i,:].unsqueeze(0)
+                        tgt = test_tgt[i,1:].unsqueeze(0)
 
                         sample = transformer.generate(src)
                         incorrects = torch.sum(tgt != sample)
 
                         txt_lst.append(f"input  : {tgt}\npredict: {sample}\nincorrects: {incorrects}\n\n")
-
+                    
                     with open(f"output_{attn_type}/{file_name}.txt", mode="w") as f:
                         f.writelines(txt_lst)
                     with open(f"output_{attn_type}/{file_name}_loss.csv", mode="w") as f:
