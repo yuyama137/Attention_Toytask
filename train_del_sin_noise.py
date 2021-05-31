@@ -32,6 +32,7 @@ ENC_SEQ_LEN = 32
 DEC_SEQ_LEN = 32
 # attn_type = "linear_attn_elu"
 attn_type = args.attn_type
+
 SEED = 32
 np.random.seed(SEED)
 random.seed(SEED)
@@ -44,8 +45,8 @@ if not os.path.exists(f"output_{attn_type}"):
     os.makedirs(f"output_{attn_type}")
 
 def makesin_noise():
-    period = np.random.randint(50, 100)# 周期
-    A = np.random.randint(50,100)# 振幅
+    period = np.random.randint(75, 100)# 周期
+    A = np.random.randint(75,100)# 振幅
     sft = np.random.randint(period)
     x_lst = np.arange(period) - sft
     s = np.sin(2*np.pi*x_lst/period)
@@ -120,10 +121,10 @@ def culc_loss(loss_func, inputs, targets):
     loss /= B
     return loss
 
-dim_lst = [256, 512, 1024]
+dim_lst = [1024, 512, 256]
 head_lst = [8, 16]
 depth_lst = [4]
-ff_lst = [256, 512, 1024]
+ff_lst = [1024, 512, 256]
 pos_lst = [256, 1000]
 
 test_src, test_tgt, test_src_lst = make_data(10, False)
@@ -187,10 +188,6 @@ for dim in dim_lst:
                             # incorrects = (src != sample).abs().sum()
                             incorrects = torch.sum(test_tgt[:,1:] != sample)
 
-                            # print(f"input:  ", src)
-                            # print(f"predicted output:  ", sample)
-                            # print(f"incorrects: {incorrects}")
-                            
                             t_0 = test_tgt[0,1:].detach().cpu().numpy()
                             s_0 = sample[0,:].detach().cpu().numpy()
                             src_0 = test_src[0].detach().cpu().numpy()
@@ -204,7 +201,11 @@ for dim in dim_lst:
                             ax.set_title(f"file_name itr : {i}")
                             plt.savefig(f"output_{attn_type}/{file_name}_iter_{i}.png")
                             plt.clf()
-                            plt.close()                    
+                            plt.close()
+
+                            print(f"answer : ", test_tgt[0,1:])
+                            print(f"predicted output:  ", sample[0,:])
+                            print(f"incorrects: {incorrects}")
 
                     # lossの推移グラフ
                     plt.rcParams["font.size"] = 18
