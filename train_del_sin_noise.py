@@ -21,17 +21,18 @@ args = parser.parse_args()
 device = torch.device("cuda:{}".format(args.gpu)) if args.gpu >= 0 else torch.device("cpu")
 
 # constants
-NUM_BATCHES = 5000
+NUM_BATCHES = 10000
 # NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
-GENERATE_EVERY  = 200
+GENERATE_EVERY  = 500
 # データの範囲は、2<= data <= 220(含む)
 NUM_TOKENS = 230
 ENC_SEQ_LEN = 32
 DEC_SEQ_LEN = 32
 # attn_type = "linear_attn_elu"
 attn_type = args.attn_type
+TEST_NUM = 10
 
 SEED = 32
 np.random.seed(SEED)
@@ -127,7 +128,7 @@ depth_lst = [4]
 ff_lst = [1024, 512, 256]
 pos_lst = [256, 1000]
 
-test_src, test_tgt, test_src_lst = make_data(10, False)
+test_src, test_tgt, test_src_lst = make_data(TEST_NUM, False)
 test_src = torch.from_numpy(test_src).long().to(device)
 test_tgt = torch.from_numpy(test_tgt).long().to(device)
 
@@ -198,7 +199,8 @@ for dim in dim_lst:
                             ax.plot(t_0, label="target")
                             ax.plot(s_0, label="predict")
                             ax.plot(src_0, label="noised data")
-                            ax.set_title(f"file_name itr : {i}")
+                            ax.set_title(f"{file_name} itr : {i}")
+                            plt.legend()
                             plt.savefig(f"output_{attn_type}/{file_name}_iter_{i}.png")
                             plt.clf()
                             plt.close()
@@ -220,7 +222,7 @@ for dim in dim_lst:
                     plt.close()
 
                     # 結果のパラメータにおけるincorrect number + 最後のloss
-                    sample_num = 10
+                    sample_num = TEST_NUM
                     txt_lst = []
                     for i in range(sample_num):
                         transformer.eval()
