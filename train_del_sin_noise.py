@@ -1,4 +1,5 @@
 # import model
+# from torch._C import T
 import copy_model
 import torch
 from torch import nn
@@ -24,7 +25,7 @@ NUM_BATCHES = 5000
 # NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
-GENERATE_EVERY  = 1
+GENERATE_EVERY  = 200
 # データの範囲は、2<= data <= 220(含む)
 NUM_TOKENS = 230
 ENC_SEQ_LEN = 32
@@ -156,15 +157,17 @@ for dim in dim_lst:
 
                     # training
 
+                    file_name = "{}_poslen_{}_dim_{}_ffhidnum_{}_head_{}_depth_{}".format(attn_type,position_max_len, DIMENTION, ff_hidnum, HEAD, DEPTH)
+
                     for i in range(NUM_BATCHES):
                         transformer.train()
                         # src, tgt, src_mask, tgt_mask = next(cycle())
                         src, tgt = make_data(BATCH_SIZE, True, test_src_lst)
                         # src, tgt, src_mask, tgt_mask = src.to(device), tgt.to(device), src_mask.to(device), tgt_mask.to(device)
                         src, tgt = torch.from_numpy(src).long().to(device), torch.from_numpy(tgt).long().to(device)
-                        
+                        # import pdb; pdb.set_trace()
                         out = transformer(src, tgt)
-                        loss = culc_loss(criterion, out[:,:-1,:], src)
+                        loss = culc_loss(criterion, out[:,:-1,:], tgt[:,1:])
                         loss.backward()
                         # print(loss.item())
 
@@ -187,8 +190,21 @@ for dim in dim_lst:
                             # print(f"input:  ", src)
                             # print(f"predicted output:  ", sample)
                             # print(f"incorrects: {incorrects}")
+                            
+                            t_0 = test_tgt[0,1:].detach().cpu().numpy()
+                            s_0 = sample[0,:].detach().cpu().numpy()
+                            src_0 = test_src[0].detach().cpu().numpy()
 
-                    file_name = "{}_poslen_{}_dim_{}_ffhidnum_{}_head_{}_depth_{}".format(attn_type,position_max_len, DIMENTION, ff_hidnum, HEAD, DEPTH)
+                            plt.rcParams["font.size"] = 18
+                            fig = plt.figure(figsize=(12,8))
+                            ax = fig.add_subplot(111)
+                            ax.plot(t_0, label="target")
+                            ax.plot(s_0, label="predict")
+                            ax.plot(src_0, label="noised data")
+                            ax.set_title(f"file_name itr : {i}")
+                            plt.savefig(f"output_{attn_type}/{file_name}_iter_{i}.png")
+                            plt.clf()
+                            plt.close()                    
 
                     # lossの推移グラフ
                     plt.rcParams["font.size"] = 18
@@ -216,7 +232,7 @@ for dim in dim_lst:
                         sample = transformer.generate(src)
                         incorrects = torch.sum(tgt != sample)
 
-                        txt_lst.append(f"input  : {tgt}\npredict: {sample}\nincorrects: {incorrects}\n\n")
+                        txt_lst.append(f"input  : {src}\npredict: {sample}\nanswer : {tgt}\nincorrects: {incorrects}\n\n")
                     
                     with open(f"output_{attn_type}/{file_name}.txt", mode="w") as f:
                         f.writelines(txt_lst)
