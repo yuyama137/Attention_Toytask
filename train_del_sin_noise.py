@@ -12,6 +12,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Train Many-to-Many Voice Transformer Network')
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU ID (negative value indicates CPU)')
+parser.add_argument("--attn_type", "-a", type=str, help="type of attention")
 args = parser.parse_args()
 
 # device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -27,7 +28,8 @@ GENERATE_EVERY  = 1
 NUM_TOKENS = 230
 ENC_SEQ_LEN = 32
 DEC_SEQ_LEN = 32
-attn_type = "linear_attn_elu"
+# attn_type = "linear_attn_elu"
+attn_type = args.attn_type
 SEED = 32
 np.random.seed(SEED)
 random.seed(SEED)
