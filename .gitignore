@@ -4,3 +4,5 @@ from_colab/*
 .vscode/*
 .ipynb_checkpoints/*
 output_linear_attn_elu/*
+output_linear/*
+output_full/*

@@ -24,7 +24,7 @@ NUM_BATCHES = 5000
 # NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
-GENERATE_EVERY  = 1
+GENERATE_EVERY  = 50
 # データの範囲は、2<= data <= 220(含む)
 NUM_TOKENS = 230
 ENC_SEQ_LEN = 32
@@ -43,8 +43,8 @@ if not os.path.exists(f"output_{attn_type}"):
     os.makedirs(f"output_{attn_type}")
 
 def makesin_noise():
-    period = np.random.randint(50, 100)# 周期
-    A = np.random.randint(50,100)# 振幅
+    period = np.random.randint(75, 100)# 周期
+    A = np.random.randint(75,100)# 振幅
     sft = np.random.randint(period)
     x_lst = np.arange(period) - sft
     s = np.sin(2*np.pi*x_lst/period)
@@ -119,10 +119,12 @@ def culc_loss(loss_func, inputs, targets):
     loss /= B
     return loss
 
-dim_lst = [256, 512, 1024]
+# dim_lst = [256, 512, 1024]
+dim_lst = [1024]
 head_lst = [8, 16]
 depth_lst = [4]
-ff_lst = [256, 512, 1024]
+# ff_lst = [256, 512, 1024]
+ff_lst = [512]
 pos_lst = [256, 1000]
 
 test_src, test_tgt, test_src_lst = make_data(10, False)
@@ -184,9 +186,9 @@ for dim in dim_lst:
                             # incorrects = (src != sample).abs().sum()
                             incorrects = torch.sum(test_tgt[:,1:] != sample)
 
-                            # print(f"input:  ", src)
-                            # print(f"predicted output:  ", sample)
-                            # print(f"incorrects: {incorrects}")
+                            print(f"answer : ", test_tgt[0,1:])
+                            print(f"predicted output:  ", sample[0,:])
+                            print(f"incorrects: {incorrects}")
 
                     file_name = "{}_poslen_{}_dim_{}_ffhidnum_{}_head_{}_depth_{}".format(attn_type,position_max_len, DIMENTION, ff_hidnum, HEAD, DEPTH)
 
