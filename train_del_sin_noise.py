@@ -18,7 +18,8 @@ args = parser.parse_args()
 device = torch.device("cuda:{}".format(args.gpu)) if args.gpu >= 0 else torch.device("cpu")
 
 # constants
-NUM_BATCHES = 5000
+# NUM_BATCHES = 5000
+NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
 GENERATE_EVERY  = 1
@@ -165,12 +166,12 @@ for dim in dim_lst:
                         optim.zero_grad()
 
                         loss_lst.append(loss.item())
+                        print("Batch num : {}, Loss : {} ".format(i, loss.item()))
 
                         if i % GENERATE_EVERY == 0:
                             transformer.eval()
                             # src, _, src_mask, _ = next(cycle())
                             # src, src_mask = src[0:1].to(device), src_mask[0:1].to(device)
-                            print("generationg")
                             
                             sample = transformer.generate(test_src)
                             # import pdb; pdb.set_trace()
@@ -181,7 +182,7 @@ for dim in dim_lst:
                             # print(f"predicted output:  ", sample)
                             # print(f"incorrects: {incorrects}")
 
-                    file_name = "_poslen_{}_dim_{}_ffhidnum_{}_head_{}_depth_{}".format(attn_type,position_max_len, DIMENTION, ff_hidnum, HEAD, DEPTH)
+                    file_name = "{}_poslen_{}_dim_{}_ffhidnum_{}_head_{}_depth_{}".format(attn_type,position_max_len, DIMENTION, ff_hidnum, HEAD, DEPTH)
 
                     # lossの推移グラフ
                     plt.rcParams["font.size"] = 18
