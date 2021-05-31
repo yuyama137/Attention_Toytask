@@ -1,5 +1,6 @@
 # import model
 # from torch._C import T
+from make_sin_noise_data import A
 import copy_model
 import torch
 from torch import nn
@@ -9,6 +10,7 @@ import csv
 import random
 import argparse
 import os
+import time
 
 # GPU = 0
 
@@ -21,7 +23,7 @@ args = parser.parse_args()
 device = torch.device("cuda:{}".format(args.gpu)) if args.gpu >= 0 else torch.device("cpu")
 
 # constants
-NUM_BATCHES = 10000
+NUM_BATCHES = 5000
 # NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
@@ -161,6 +163,8 @@ for dim in dim_lst:
 
                     file_name = "{}_poslen_{}_dim_{}_ffhidnum_{}_head_{}_depth_{}".format(attn_type,position_max_len, DIMENTION, ff_hidnum, HEAD, DEPTH)
 
+                    start_time = time.time()
+
                     for i in range(NUM_BATCHES):
                         transformer.train()
                         # src, tgt, src_mask, tgt_mask = next(cycle())
@@ -236,6 +240,10 @@ for dim in dim_lst:
                         incorrects = torch.sum(tgt != sample)
 
                         txt_lst.append(f"input  : {src}\npredict: {sample}\nanswer : {tgt}\nincorrects: {incorrects}\n\n")
+
+                        take_time = time.time() - start_time
+
+                        txt_lst.append(f"this model takes {take_time} sec")
                     
                     with open(f"output_{attn_type}/{file_name}.txt", mode="w") as f:
                         f.writelines(txt_lst)
