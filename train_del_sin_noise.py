@@ -21,7 +21,7 @@ args = parser.parse_args()
 device = torch.device("cuda:{}".format(args.gpu)) if args.gpu >= 0 else torch.device("cpu")
 
 # constants
-NUM_BATCHES = 10000
+NUM_BATCHES = 5000
 # NUM_BATCHES = 4
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
