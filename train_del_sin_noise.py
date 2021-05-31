@@ -6,10 +6,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import random
+import argparse
+
+# GPU = 0
+
+parser = argparse.ArgumentParser(description='Train Many-to-Many Voice Transformer Network')
+parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU ID (negative value indicates CPU)')
+args = parser.parse_args()
+
+# device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = torch.device("cuda:{}".format(args.gpu)) if args.gpu >= 0 else torch.device("cpu")
 
 # constants
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 NUM_BATCHES = 5000
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
