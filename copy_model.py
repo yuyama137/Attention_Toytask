@@ -289,6 +289,7 @@ class CopyModel(nn.Module):
         self.fin = FinalLayer(ed, vocab_num, ff_hidnum)
 
     def forward(self, x, y):
+        # import pdb; pdb.set_trace()
         x_emb = self.x_emb(x)
         y_emb = self.y_emb(y)
         x_emb_pos = self.pos(x_emb)

@@ -5,6 +5,7 @@ from torch import nn
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+import random
 
 # constants
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -12,22 +13,18 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 NUM_BATCHES = 5000
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-4
-GENERATE_EVERY  = 100
+GENERATE_EVERY  = 1
 # データの範囲は、2<= data <= 220(含む)
-NUM_TOKENS = 220
+NUM_TOKENS = 230
 ENC_SEQ_LEN = 32
 DEC_SEQ_LEN = 32
 attn_type = "linear_attn_elu"
-
-# def cycle():
-#     while True:
-#         prefix = torch.ones((BATCH_SIZE, 1)).long()
-#         src = torch.randint(2, NUM_TOKENS, (BATCH_SIZE, ENC_SEQ_LEN)).long()
-#         tgt = torch.cat((prefix, src), 1)
-#         src_mask = torch.ones(BATCH_SIZE, ENC_SEQ_LEN).bool()
-#         tgt_mask = torch.ones(BATCH_SIZE, tgt.shape[1] - 1).bool()
-#         yield (src, tgt, src_mask, tgt_mask)
-
+SEED = 32
+np.random.seed(SEED)
+random.seed(SEED)
+torch.manual_seed(SEED)
+if device != "cpu":
+    torch.cuda.manual_seed(SEED)
 
 
 def makesin_noise():
@@ -53,7 +50,6 @@ def check_test_data(train, test):
     return True
 
 def make_data(batch, train=True, test_lst=None):
-#     np.random.seed(seed=32)
     src_lst = []
     tgt_lst = []
     # src_mask_lst = []
@@ -159,7 +155,6 @@ for dim in dim_lst:
 
                         optim.step()
                         optim.zero_grad()
-                        
 
                         loss_lst.append(loss.item())
 
@@ -167,6 +162,7 @@ for dim in dim_lst:
                             transformer.eval()
                             # src, _, src_mask, _ = next(cycle())
                             # src, src_mask = src[0:1].to(device), src_mask[0:1].to(device)
+                            print("generationg")
                             
                             sample = transformer.generate(test_src)
                             # import pdb; pdb.set_trace()
