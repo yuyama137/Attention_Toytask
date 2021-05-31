@@ -311,6 +311,7 @@ class CopyModel(nn.Module):
         x = self.pos(x)
         z = self.enc(x)
         y = torch.ones(size=(B, 1)).long().to(device)
+        # import pdb; pdb.set_trace()
         for i in range(l):
             # mask = make_mask(y.shape[1])
             tmp_y = self.y_emb(y)
